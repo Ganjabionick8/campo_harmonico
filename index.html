@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Campo Harmônico</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #121212;
+      color: #eee;
+      text-align: center;
+      padding: 2em;
+    }
+    .botoes button {
+      margin: 0.3em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+    }
+    .botoes button:hover {
+      background: #555;
+    }
+    select {
+      margin-top: 1em;
+      padding: 0.4em;
+      font-size: 1em;
+      background: #222;
+      color: #fff;
+      border-radius: 6px;
+    }
+    .resultado {
+      margin-top: 1.5em;
+      font-size: 1.2em;
+    }
+    a {
+      color: #88f;
+      text-decoration: none;
+      margin: 0 0.5em;
+    }
+  </style>
+</head>
+<body>
+  <p>
+    <a href="index.html">Campo Harmônico</a> |
+    <a href="escalas.html">Escalas</a> |
+    <a href="intervalos.html">Intervalos</a> |
+    <a href="acordes.html">Acordes</a>
+  </p>
+  <h1>Campo Harmônico</h1>
+  <p>Escolha o tom e o modo (maior ou menor).</p>
+  <button
+    onclick="toggleAjuda()"
+    style="
+      margin-bottom: 1em;
+      padding: 0.5em 1em;
+      background: #444;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    "
+  >
+    📘 Ver teoria / ajuda
+  </button>
+  <div
+    id="ajuda"
+    style="
+      display: none;
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto 2em;
+      background: #1e1e1e;
+      padding: 1em;
+      border-radius: 8px;
+    "
+  >
+    <h2 style="text-align: center">🎓 Teoria Rápida</h2>
+    <h3>O que é um Campo Harmônico?</h3>
+    <p>
+      É o conjunto de acordes que podemos formar com as notas de uma escala...
+    </p>
+    <h3>Como funciona?</h3>
+    <ul>
+      <li><strong>I:</strong> C E G → C (maior)</li>
+      <li><strong>II:</strong> D F A → Dm (menor)</li>
+      <li><strong>III:</strong> E G B → Em (menor)</li>
+      <li><strong>IV:</strong> F A C → F (maior)</li>
+      <li><strong>V:</strong> G B D → G (maior)</li>
+      <li><strong>VI:</strong> A C E → Am (menor)</li>
+      <li><strong>VII:</strong> B D F → Bdim (diminuto)</li>
+    </ul>
+    <h3>Fórmulas:</h3>
+    <p>
+      <strong>Campo Maior:</strong> I-II-III-IV-V-VI-VII (maior, menor, menor,
+      maior, maior, menor, diminuto)
+    </p>
+    <p>
+      <strong>Campo Menor Natural:</strong> I-II-III-IV-V-VI-VII (menor, diminuto,
+      maior, menor, menor, maior, maior)
+    </p>
+  </div>
+  <div class="botoes">
+    <button onclick="mostrarCampo('C')">C</button>
+    <button onclick="mostrarCampo('G')">G</button>
+    <button onclick="mostrarCampo('D')">D</button>
+    <button onclick="mostrarCampo('A')">A</button>
+    <button onclick="mostrarCampo('E')">E</button>
+    <button onclick="mostrarCampo('B')">B</button>
+    <button onclick="mostrarCampo('F')">F</button>
+    <button onclick="mostrarCampo('Bb')">Bb</button>
+    <button onclick="mostrarCampo('Am')">Am</button>
+    <button onclick="mostrarCampo('Em')">Em</button>
+    <button onclick="mostrarCampo('Dm')">Dm</button>
+    <button onclick="mostrarCampo('Fm')">Fm</button>
+  </div>
+  <select id="modo">
+    <option value="maior">Modo Maior</option>
+    <option value="menor">Modo Menor</option>
+  </select>
+  <div class="resultado" id="saida"></div>
+  <script>
+    const escalas = {
+      C: ["C", "D", "E", "F", "G", "A", "B"],
+      G: ["G", "A", "B", "C", "D", "E", "F#"],
+      D: ["D", "E", "F#", "G", "A", "B", "C#"],
+      A: ["A", "B", "C#", "D", "E", "F#", "G#"],
+      E: ["E", "F#", "G#", "A", "B", "C#", "D#"],
+      B: ["B", "C#", "D#", "E", "F#", "G#", "A#"],
+      F: ["F", "G", "A", "Bb", "C", "D", "E"],
+      Bb: ["Bb", "C", "D", "Eb", "F", "G", "A"],
+      Am: ["A", "B", "C", "D", "E", "F", "G"],
+      Em: ["E", "F#", "G", "A", "B", "C", "D"],
+      Dm: ["D", "E", "F", "G", "A", "Bb", "C"],
+      Fm: ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
+    };
+    const graus = ["I", "II", "III", "IV", "V", "VI", "VII"];
+    const tipos_maior = ["", "m", "m", "", "", "m", "dim"];
+    const tipos_menor = ["m", "dim", "", "m", "m", "", ""];
+    function formatarNota(nota) {
+      return nota.replace("b", "♭").replace("#", "♯");
+    }
+    function mostrarCampo(tom) {
+      const modo = document.getElementById("modo").value;
+      const escala = escalas[tom];
+      if (!escala) {
+        document.getElementById("saida").innerHTML = "<p>Tom não adicionado.</p>";
+        return;
+      }
+      const tipos = modo === "maior" ? tipos_maior : tipos_menor;
+      let saida = `<h2>${formatarNota(tom)} — Campo Harmônico ${
+        modo === "maior" ? "Maior" : "Menor"
+      }</h2>`;
+      for (let i = 0; i < 7; i++) {
+        saida += `<p><strong>${graus[i]}:</strong> ${formatarNota(escala[i]) + tipos[i]}</p>`;
+      }
+      document.getElementById("saida").innerHTML = saida;
+    }
+    function toggleAjuda() {
+      const a = document.getElementById("ajuda");
+      a.style.display = a.style.display === "none" ? "block" : "none";
+    }
+  </script>
+</body>
+</html>
